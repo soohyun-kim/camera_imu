@@ -1,20 +1,32 @@
 #include <Adafruit_FXAS21002C.h>
 #include <Adafruit_Sensor.h>
+#include <Adafruit_SensorLab.h>
 #include <Wire.h>
 #include <Metro.h>
 #include <SPI.h>
 #include <SD.h>
 #include <Bounce2.h>
 
-// enter measured zero offset drift error for calibration (rad/s)
-float cal_x = -0.0139;
-float cal_y = 0.0013;
-float cal_z = 0.0032;
+#define NUMBER_SAMPLES 1000
 
 // declarations
 Adafruit_FXAS21002C gyro = Adafruit_FXAS21002C(0x0021002C);
+Adafruit_SensorLab lab;
+Adafruit_Sensor *gyroCal;
+sensors_event_t event;
 
-Metro readSensor = Metro(41.66666);  // 41.667ms = 1/24th of 1s, corresponds to 24fps
+// temporary variables used for calibration
+float min_x, max_x, mid_x;
+float min_y, max_y, mid_y;
+float min_z, max_z, mid_z;
+
+// enter sensor refresh rate in fps (higher results in better rotation accuracy)
+float frameRate = 200;
+// enter camera capture frame rate
+float logRate = 24;
+
+Metro readSensor = Metro((1/frameRate)*1000);
+Metro captureTimer = Metro((1/logRate)*1000);
 Metro incrementReminder = Metro(1000);
 Metro positionReminder = Metro(100);
 
@@ -23,6 +35,7 @@ Bounce recButton = Bounce();
 // extrinsic euler angles characterizing camera rotation
 float x_cum, y_cum, z_cum;
 float x_diff, y_diff, z_diff; 
+float cal_x, cal_y, cal_z;
 int fileIncrement;
 File gyroLog;
 bool recording;
@@ -50,6 +63,8 @@ void setup(void) {
   }
 
   // debug range (default 250dps)
+  delay(750);
+  Serial.print("Sensor DPS: ");
   Serial.println(gyro.getRange());
 
   // initialize rotation values
@@ -81,9 +96,22 @@ void setup(void) {
     }
     fileIncrement++;
   }
+  Serial.print("fileIncrement: ");
+  Serial.println(fileIncrement);
+
+  calibrateSensor();
   
   // initialize record flag
   recording = false;
+
+  Serial.println();
+  Serial.print("Sensor update rate: ");
+  Serial.println(frameRate);
+  Serial.print("Camera framerate: ");
+  Serial.println(logRate);
+  Serial.println();
+  Serial.println("Setup complete.");
+  delay(2000);
 }
 
 void loop(void) {
@@ -97,7 +125,9 @@ void loop(void) {
   
   if (readSensor.check()) {
     updateRotation();
-    if (recording) {
+  }
+  if (recording) {
+    if (captureTimer.check()) {
       writeToSD();
     }
   }
@@ -125,14 +155,14 @@ void loop(void) {
 }
 
 void updateRotation() {
-  sensors_event_t event;
-  gyro.getEvent(&event);
+  sensors_event_t eventTemp;
+  gyro.getEvent(&eventTemp);
   // sensor returns deg per second angular velocities of each axis
   // integrate the gyro angular velocity values to find cumulative rotation
   // use riemann sums of step 41.666 ms; convert to rad and correct for drift
-  x_diff = gyro.raw.x*GYRO_SENSITIVITY_250DPS*0.0174533*0.04166666 - cal_x*0.04166666;
-  y_diff = gyro.raw.y*GYRO_SENSITIVITY_250DPS*0.0174533*0.04166666 - cal_y*0.04166666;
-  z_diff = gyro.raw.z*GYRO_SENSITIVITY_250DPS*0.0174533*0.04166666 - cal_z*0.04166666;
+  x_diff = gyro.raw.x*GYRO_SENSITIVITY_250DPS*0.0174533*(1/frameRate) - cal_x*(1/frameRate);
+  y_diff = gyro.raw.y*GYRO_SENSITIVITY_250DPS*0.0174533*(1/frameRate) - cal_y*(1/frameRate);
+  z_diff = gyro.raw.z*GYRO_SENSITIVITY_250DPS*0.0174533*(1/frameRate) - cal_z*(1/frameRate);
   x_cum += x_diff;
   y_cum += y_diff;
   z_cum += z_diff;
@@ -154,7 +184,7 @@ void recordStart() {
   String fileName = fileIncrement + suffix;
   gyroLog = SD.open(fileName.c_str(), FILE_WRITE);
   Serial.println("record started");
-  readSensor.reset();
+  captureTimer.reset();
 }
 
 void recordStop() {
@@ -162,4 +192,74 @@ void recordStop() {
   gyroLog.close();
   Serial.println("record stopped");
   fileIncrement++;
+}
+
+void calibrateSensor() {
+  delay(1000);
+  Serial.println(F("Sensor Lab - Gyroscope Calibration!"));
+  lab.begin();
+  
+  gyroCal = lab.getGyroscope();
+  
+  gyroCal->printSensorDetails();
+  delay(100);
+
+  gyroCal->getEvent(&event);
+  min_x = max_x = event.gyro.x;
+  min_y = max_y = event.gyro.y;
+  min_z = max_z = event.gyro.z;
+  delay(10);
+
+  Serial.println(F("Place gyro on flat, stable surface!"));
+
+  Serial.print(F("Fetching samples in 3..."));
+  delay(1000);
+  Serial.print("2...");
+  delay(1000);
+  Serial.print("1...");
+  delay(1000);
+  Serial.println("NOW!");
+  
+  float x, y, z;
+  for (uint16_t sample = 0; sample < NUMBER_SAMPLES; sample++) {
+    gyroCal->getEvent(&event);
+    x = event.gyro.x;
+    y = event.gyro.y;
+    z = event.gyro.z;
+    Serial.print(F("Gyro: ("));
+    Serial.print(x); Serial.print(", ");
+    Serial.print(y); Serial.print(", ");
+    Serial.print(z); Serial.print(")");
+
+    min_x = min(min_x, x);
+    min_y = min(min_y, y);
+    min_z = min(min_z, z);
+  
+    max_x = max(max_x, x);
+    max_y = max(max_y, y);
+    max_z = max(max_z, z);
+  
+    mid_x = (max_x + min_x) / 2;
+    mid_y = (max_y + min_y) / 2;
+    mid_z = (max_z + min_z) / 2;
+
+    Serial.print(F(" Zero rate offset: ("));
+    Serial.print(mid_x, 4); Serial.print(", ");
+    Serial.print(mid_y, 4); Serial.print(", ");
+    Serial.print(mid_z, 4); Serial.print(")");  
+  
+    Serial.print(F(" rad/s noise: ("));
+    Serial.print(max_x - min_x, 3); Serial.print(", ");
+    Serial.print(max_y - min_y, 3); Serial.print(", ");
+    Serial.print(max_z - min_z, 3); Serial.println(")");   
+    delay(10);
+  }
+  Serial.println(F("\n\nFinal zero rate offset in radians/s: "));
+  Serial.print(mid_x, 4); Serial.print(", ");
+  Serial.print(mid_y, 4); Serial.print(", ");
+  Serial.println(mid_z, 4);
+
+  cal_x = mid_x;
+  cal_y = mid_y;
+  cal_z = mid_z;
 }

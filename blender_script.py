@@ -1,6 +1,19 @@
-import bpy, mathutils, math, csv
+import bpy, mathutils, math, csv, os
 
-for i in range(100):
-    bpy.context.scene.frame_set(i)
-    bpy.context.scene.camera.rotation_euler = mathutils.Euler((0.1*i, 0, 0), 'XYZ')
-    bpy.context.scene.camera.keyframe_insert(data_path='rotation_euler')
+os.chdir('/camera_imu/results')
+for fileinc in range(len(os.listdir())):
+    dataReader = csv.reader(open(str(fileinc)+'.csv'))
+
+    cameraController = bpy.data.objects.new('cameraController'+str(fileinc), None)
+    bpy.context.scene.collection.objects.link(cameraController)
+
+    i = 0
+    for frame in dataReader:
+        angleList = []
+        for value in frame:
+            angleList.append(float(value))
+        bpy.context.scene.frame_set(i)
+        bpy.data.objects['cameraController'+str(fileinc)].rotation_euler = mathutils.Euler(angleList)
+        bpy.data.objects['cameraController'+str(fileinc)].keyframe_insert(data_path='rotation_euler')
+        i = i + 1
+

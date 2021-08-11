@@ -12,7 +12,7 @@ Adafruit_SensorLab lab;
 
 #define NUMBER_SAMPLES 500
 
-Adafruit_Sensor *gyro;
+Adafruit_Sensor *gyroCal;
 sensors_event_t event;
 
 float min_x, max_x, mid_x;
@@ -27,15 +27,15 @@ void setup(void) {
   lab.begin();
   
   Serial.println("Looking for a gyro");
-  gyro = lab.getGyroscope();
-  if (! gyro) {
+  gyroCal = lab.getGyroscope();
+  if (! gyroCal) {
     Serial.println(F("Could not find a gyro, check wiring!"));
     while(1) delay(10);
   }
-  gyro->printSensorDetails();
+  gyroCal->printSensorDetails();
   delay(100);
 
-  gyro->getEvent(&event);
+  gyroCal->getEvent(&event);
   min_x = max_x = event.gyro.x;
   min_y = max_y = event.gyro.y;
   min_z = max_z = event.gyro.z;
@@ -53,7 +53,7 @@ void setup(void) {
   
   float x, y, z;
   for (uint16_t sample = 0; sample < NUMBER_SAMPLES; sample++) {
-    gyro->getEvent(&event);
+    gyroCal->getEvent(&event);
     x = event.gyro.x;
     y = event.gyro.y;
     z = event.gyro.z;
