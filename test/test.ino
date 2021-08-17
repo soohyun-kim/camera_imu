@@ -21,7 +21,7 @@ float min_y, max_y, mid_y;
 float min_z, max_z, mid_z;
 
 // enter sensor refresh rate in fps (higher results in better rotation accuracy)
-float frameRate = 200;
+float frameRate = 120;
 // enter camera capture frame rate
 float logRate = 24;
 
@@ -32,7 +32,7 @@ Metro positionReminder = Metro(100);
 
 Bounce recButton = Bounce();
 
-// extrinsic euler angles characterizing camera rotation
+// angles characterizing camera rotation
 float x_cum, y_cum, z_cum;
 float x_diff, y_diff, z_diff; 
 float cal_x, cal_y, cal_z;
@@ -43,20 +43,27 @@ bool recording;
 void setup(void) {
   Serial.begin(9600);
 
-  // status indicator LED
-  pinMode(13, OUTPUT);
+  // status indicator LEDs
+  //pinMode(13, OUTPUT);
+  pinMode(30, OUTPUT);  // red
+  pinMode(31, OUTPUT);  // green
+  pinMode(32, OUTPUT);  // blue
 
   // record button, pulled down with 10k and pulsed high
   pinMode(35, INPUT);
   recButton.attach(35);
-  recButton.interval(30);
+  recButton.interval(40);
 
   // initialize sensor, panic if not found
   if (!gyro.begin()) {
     while (1) {
-      digitalWrite(13, HIGH);
+      //digitalWrite(13, HIGH);
+      digitalWrite(30, HIGH);
+      digitalWrite(32, HIGH);
       delay(100);
-      digitalWrite(13, LOW);
+      //digitalWrite(13, LOW);
+      digitalWrite(30, LOW);
+      digitalWrite(32, LOW);
       delay(100);
       Serial.println("Sensor not detected");
     }
@@ -78,9 +85,13 @@ void setup(void) {
   // initialize SD card, panic if not found
   if (!SD.begin(BUILTIN_SDCARD)) {
     while (1) {
-      digitalWrite(13, HIGH);
+      //digitalWrite(13, HIGH);
+      digitalWrite(31, HIGH);
+      digitalWrite(30, HIGH);
       delay(300);
-      digitalWrite(13, LOW);
+      //digitalWrite(13, LOW);
+      digitalWrite(31, LOW);
+      digitalWrite(30, LOW);
       delay(300);
       Serial.println("SD card not detected");
     }
@@ -99,6 +110,7 @@ void setup(void) {
   Serial.print("fileIncrement: ");
   Serial.println(fileIncrement);
 
+  digitalWrite(31, HIGH);
   calibrateSensor();
   
   // initialize record flag
@@ -112,15 +124,23 @@ void setup(void) {
   Serial.println();
   Serial.println("Setup complete.");
   delay(2000);
+  digitalWrite(31, LOW);
+
+  readSensor.reset();
+  captureTimer.reset();
+  incrementReminder.reset();
+  positionReminder.reset();
 }
 
 void loop(void) {
   recButton.update();
   if (recButton.rose()) {
-    recordStart();
-  }
-  if (recButton.fell()) {
-    recordStop();
+    if (!recording) {
+      recordStart();
+    }
+    else if (recording) {
+      recordStop();
+    }
   }
   
   if (readSensor.check()) {
@@ -151,7 +171,8 @@ void loop(void) {
   }
 
   // tally light (lights up if recording)
-  digitalWrite(13, recording);
+  digitalWrite(32, !recording);
+  digitalWrite(30, recording);
 }
 
 void updateRotation() {
@@ -219,6 +240,9 @@ void calibrateSensor() {
   Serial.print("1...");
   delay(1000);
   Serial.println("NOW!");
+
+  Metro flasher = Metro(500);
+  bool calLed = false;
   
   float x, y, z;
   for (uint16_t sample = 0; sample < NUMBER_SAMPLES; sample++) {
@@ -251,7 +275,13 @@ void calibrateSensor() {
     Serial.print(F(" rad/s noise: ("));
     Serial.print(max_x - min_x, 3); Serial.print(", ");
     Serial.print(max_y - min_y, 3); Serial.print(", ");
-    Serial.print(max_z - min_z, 3); Serial.println(")");   
+    Serial.print(max_z - min_z, 3); Serial.println(")");
+    
+    if (flasher.check()) {
+      calLed = !calLed;
+    }
+    digitalWrite(31, calLed);
+    
     delay(10);
   }
   Serial.println(F("\n\nFinal zero rate offset in radians/s: "));
