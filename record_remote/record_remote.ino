@@ -1,7 +1,6 @@
 #include <Metro.h>
 #include <Bounce2.h>
 
-Metro myT = Metro(5);
 Metro slew = Metro(20);
 
 Bounce b = Bounce();
@@ -51,11 +50,6 @@ void loop() {
       outPWM = 51;
       falling = false;
     }
-  }
-
-  if (myT.check()) {
-    //Serial.println(analogRead(A9));
-    Serial.println(outPWM);
   }
   analogWrite(20, outPWM);
 }

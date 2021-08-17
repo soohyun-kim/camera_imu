@@ -25,10 +25,12 @@ float frameRate = 120;
 // enter camera capture frame rate
 float logRate = 24;
 
+// timers
 Metro readSensor = Metro((1/frameRate)*1000);
 Metro captureTimer = Metro((1/logRate)*1000);
 Metro incrementReminder = Metro(1000);
 Metro positionReminder = Metro(100);
+Metro slew = Metro(20);
 
 Bounce recButton = Bounce();
 
@@ -36,9 +38,18 @@ Bounce recButton = Bounce();
 float x_cum, y_cum, z_cum;
 float x_diff, y_diff, z_diff; 
 float cal_x, cal_y, cal_z;
+
+// file counter
 int fileIncrement;
+
+// log file object
 File gyroLog;
-bool recording;
+
+// global flags
+bool recording, rising, falling;
+
+// record trigger PWM
+uint8_t outPWM;
 
 void setup(void) {
   Serial.begin(9600);
@@ -53,6 +64,10 @@ void setup(void) {
   pinMode(35, INPUT);
   recButton.attach(35);
   recButton.interval(40);
+
+  // setup record trigger PWM
+  pinMode(20, OUTPUT);
+  analogWriteFrequency(20, 50);
 
   // initialize sensor, panic if not found
   if (!gyro.begin()) {
@@ -113,8 +128,13 @@ void setup(void) {
   digitalWrite(31, HIGH);
   calibrateSensor();
   
-  // initialize record flag
+  // initialize flags
   recording = false;
+  rising = false;
+  falling = false;
+
+  // initialize record PWM duty cycle
+  outPWM = 51;
 
   Serial.println();
   Serial.print("Sensor update rate: ");
@@ -126,6 +146,7 @@ void setup(void) {
   delay(2000);
   digitalWrite(31, LOW);
 
+  // reset timers
   readSensor.reset();
   captureTimer.reset();
   incrementReminder.reset();
@@ -134,15 +155,33 @@ void setup(void) {
 
 void loop(void) {
   recButton.update();
+
+  // button press
   if (recButton.rose()) {
-    if (!recording) {
+    // disable button when in transitory state
+    if (!rising && !falling) {
+      // record start/stop sequence part one
+      if (!recording) {
+        recordStart();
+      }
+      else if (recording) {
+        recordStop();
+      }
+    }
+  }
+
+  // record start/stop sequence part two
+  if (rising) {
+    if (slew.check()) {
       recordStart();
     }
-    else if (recording) {
+  }
+  else if (falling) {
+    if (slew.check()) {
       recordStop();
     }
   }
-  
+
   if (readSensor.check()) {
     updateRotation();
   }
@@ -151,26 +190,13 @@ void loop(void) {
       writeToSD();
     }
   }
-  
-  if (incrementReminder.check()) {
-    Serial.print("file increment: ");
-    Serial.println(fileIncrement);
-  }
-  if (positionReminder.check()) {
-    Serial.print("rotation: ");
-    Serial.print("X: ");
-    Serial.print(x_cum);
-    Serial.print("  ");
-    Serial.print("Y: ");
-    Serial.print(y_cum);
-    Serial.print("  ");
-    Serial.print("Z: ");
-    Serial.print(z_cum);
-    Serial.print("  ");
-    Serial.println("rad");
-  }
 
-  // tally light (lights up if recording)
+  // output recording PWM
+  analogWrite(20, outPWM);
+
+  serialDebugDisplay();
+
+  // tally light
   digitalWrite(32, !recording);
   digitalWrite(30, recording);
 }
@@ -180,7 +206,7 @@ void updateRotation() {
   gyro.getEvent(&eventTemp);
   // sensor returns deg per second angular velocities of each axis
   // integrate the gyro angular velocity values to find cumulative rotation
-  // use riemann sums of step 41.666 ms; convert to rad and correct for drift
+  // using riemann sums; then convert to rad and correct for drift
   x_diff = gyro.raw.x*GYRO_SENSITIVITY_250DPS*0.0174533*(1/frameRate) - cal_x*(1/frameRate);
   y_diff = gyro.raw.y*GYRO_SENSITIVITY_250DPS*0.0174533*(1/frameRate) - cal_y*(1/frameRate);
   z_diff = gyro.raw.z*GYRO_SENSITIVITY_250DPS*0.0174533*(1/frameRate) - cal_z*(1/frameRate);
@@ -200,18 +226,40 @@ void writeToSD() {
 }
 
 void recordStart() {
-  recording = true;
+  // part one
+  if (!rising) {
+    outPWM = 52;
+    slew.reset();
+    rising = true;
+    return;
+  }
+
+  // part two
   String suffix = ".csv";
   String fileName = fileIncrement + suffix;
   gyroLog = SD.open(fileName.c_str(), FILE_WRITE);
+  outPWM = 53;
   Serial.println("record started");
+  rising = false;
+  recording = true;
   captureTimer.reset();
 }
 
 void recordStop() {
-  recording = false;
+  // part one
+  if (!falling) {
+    outPWM = 52;
+    slew.reset();
+    falling = true;
+    return;
+  }
+
+  // part two
   gyroLog.close();
+  outPWM = 51;
   Serial.println("record stopped");
+  falling = false;
+  recording = false;
   fileIncrement++;
 }
 
@@ -292,4 +340,24 @@ void calibrateSensor() {
   cal_x = mid_x;
   cal_y = mid_y;
   cal_z = mid_z;
+}
+
+void serialDebugDisplay() {
+  if (incrementReminder.check()) {
+    Serial.print("file increment: ");
+    Serial.println(fileIncrement);
+  }
+  if (positionReminder.check()) {
+    Serial.print("rotation: ");
+    Serial.print("X: ");
+    Serial.print(x_cum);
+    Serial.print("  ");
+    Serial.print("Y: ");
+    Serial.print(y_cum);
+    Serial.print("  ");
+    Serial.print("Z: ");
+    Serial.print(z_cum);
+    Serial.print("  ");
+    Serial.println("rad");
+  }
 }
