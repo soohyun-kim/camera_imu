@@ -1,3 +1,6 @@
+/*
+ * BMMCC Orientation Logger - Designed by Soohyun Kim.
+ */
 #include <Adafruit_FXAS21002C.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_SensorLab.h>
@@ -31,6 +34,7 @@ Metro captureTimer = Metro((1/logRate)*1000);
 Metro incrementReminder = Metro(1000);
 Metro positionReminder = Metro(100);
 Metro slew = Metro(20);
+Metro switcher = Metro(10);
 
 Bounce recButton = Bounce();
 
@@ -46,7 +50,7 @@ int fileIncrement;
 File gyroLog;
 
 // global flags
-bool recording, rising, falling;
+bool recording, rising, falling, flag;
 
 // record trigger PWM
 uint8_t outPWM;
@@ -54,17 +58,30 @@ uint8_t outPWM;
 void setup(void) {
   Serial.begin(9600);
 
+  // bjt base control for display
+  pinMode(28, OUTPUT);  // bjt digit 1
+  pinMode(29, OUTPUT);  // bjt digit 2
+  
   // status indicator LEDs
   //pinMode(13, OUTPUT);
   pinMode(30, OUTPUT);  // red
   pinMode(31, OUTPUT);  // green
   pinMode(32, OUTPUT);  // blue
 
+  // motion button - momentarily unfreeze rotation and allow change
+  pinMode(34, INPUT);
+
   // record button, pulled down with 10k and pulsed high
   pinMode(35, INPUT);
   recButton.attach(35);
   recButton.interval(40);
 
+  // shift register control for display
+  pinMode(36, OUTPUT);  // ser data
+  pinMode(37, OUTPUT);  // srclk
+  pinMode(38, OUTPUT);  // rclk
+  pinMode(39, OUTPUT);  // srclr
+  
   // setup record trigger PWM
   pinMode(20, OUTPUT);
   analogWriteFrequency(20, 50);
@@ -132,7 +149,17 @@ void setup(void) {
   recording = false;
   rising = false;
   falling = false;
+  flag = true;
 
+  // initialize shift register clocks low
+  digitalWrite(37, LOW);
+  digitalWrite(38, LOW);
+
+  // clear shift register data
+  digitalWrite(39, LOW);
+  delay(5);
+  digitalWrite(39, HIGH);
+  
   // initialize record PWM duty cycle
   outPWM = 51;
 
@@ -151,6 +178,7 @@ void setup(void) {
   captureTimer.reset();
   incrementReminder.reset();
   positionReminder.reset();
+  switcher.reset();
 }
 
 void loop(void) {
@@ -182,8 +210,24 @@ void loop(void) {
     }
   }
 
+  // switch digit to display
+  if (switcher.check()) {
+    flag = !flag;
+    if (flag) {
+      printDigit((fileIncrement-(fileIncrement%10))/10);
+    }
+    if (!flag) {
+      printDigit(fileIncrement%10);
+    }
+    digitalWrite(28, flag);
+    digitalWrite(29, !flag);
+  }
+
   if (readSensor.check()) {
-    updateRotation();
+    // if unfrozen
+    if (digitalRead(34)) {
+      updateRotation();
+    }
   }
   if (recording) {
     if (captureTimer.check()) {
@@ -359,5 +403,74 @@ void serialDebugDisplay() {
     Serial.print(z_cum);
     Serial.print("  ");
     Serial.println("rad");
+  }
+}
+
+void printDigit(int digit) {
+  switch (digit) {
+    case 0:
+      dataIn(false, 2);
+      dataIn(true, 6);
+      break;
+    case 1:
+      dataIn(false, 5);
+      dataIn(true, 2);
+      dataIn(false, 1);
+      break;
+    case 2:
+      dataIn(true, 2);
+      dataIn(false, 1);
+      dataIn(true, 2);
+      dataIn(false, 1);
+      dataIn(true, 2);
+      break;
+    case 3:
+      dataIn(true, 2);
+      dataIn(false, 2);
+      dataIn(true, 4);
+      break;
+    case 4:
+      dataIn(true, 3);
+      dataIn(false, 2);
+      dataIn(true, 2);
+      dataIn(false, 1);
+      break;
+    case 5:
+      dataIn(true, 3);
+      dataIn(false, 1);
+      dataIn(true, 2);
+      dataIn(false, 1);
+      dataIn(true, 1);
+      break;
+    case 6:
+      dataIn(true, 6);
+      dataIn(false, 1);
+      dataIn(true, 1);
+      break;
+    case 7:
+      dataIn(false, 5);
+      dataIn(true, 3);
+      break;
+    case 8:
+      dataIn(true, 8);
+      break;
+    case 9:
+      dataIn(true, 3);
+      dataIn(false, 1);
+      dataIn(true, 4);
+      break;
+  }
+  // clock rclk to output
+  digitalWrite(38, HIGH);
+  digitalWrite(38, LOW);
+}
+
+void dataIn(bool state, int no) {
+  digitalWrite(36, state);
+  for (int i=0; i<no; i++) {
+    digitalWrite(37, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(37, LOW);
+    delayMicroseconds(10);
   }
 }

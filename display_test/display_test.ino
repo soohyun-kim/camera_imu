@@ -9,8 +9,8 @@ int number;
 
 void setup() {
   // put your setup code here, to run once:
-  pinMode(29, OUTPUT);  // bjt digit 1
-  pinMode(30, OUTPUT);  // bjt digit 2
+  pinMode(28, OUTPUT);  // bjt digit 1
+  pinMode(29, OUTPUT);  // bjt digit 2
 
   pinMode(36, OUTPUT);  // ser data
   pinMode(37, OUTPUT);  // srclk
@@ -39,8 +39,8 @@ void loop() {
     if (!flag) {
       printDigit(number%10);
     }
-    digitalWrite(29, flag);
-    digitalWrite(30, !flag);
+    digitalWrite(28, flag);
+    digitalWrite(29, !flag);
   }
   
   if (incrementer.check()) {
