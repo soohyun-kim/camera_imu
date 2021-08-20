@@ -58,6 +58,11 @@ uint8_t outPWM;
 void setup(void) {
   Serial.begin(9600);
 
+  // dummy declarations for board routing convenience
+  // (set to high impedance)
+  pinMode(A21, INPUT);
+  pinMode(A22, INPUT);
+
   // bjt base control for display
   pinMode(28, OUTPUT);  // bjt digit 1
   pinMode(29, OUTPUT);  // bjt digit 2
