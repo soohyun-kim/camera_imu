@@ -862,6 +862,17 @@ will be further integrated into the Sparkfun Library for other footprints.  It c
 <wire x1="-2.925" y1="-11.176" x2="27.9146" y2="-11.176" width="0.127" layer="21"/>
 <wire x1="27.9146" y1="-4.826" x2="27.9146" y2="-11.176" width="0.127" layer="21"/>
 </package>
+<package name="SLIDE_SWITCH">
+<pad name="P$1" x="-2.5" y="0" drill="0.95" shape="square"/>
+<pad name="P$2" x="0" y="0" drill="0.95" shape="square"/>
+<pad name="P$3" x="2.5" y="0" drill="0.95" shape="square"/>
+<wire x1="0" y1="2" x2="-5.842" y2="2" width="0.1524" layer="21"/>
+<wire x1="-5.842" y1="2" x2="-5.842" y2="-2" width="0.1524" layer="21"/>
+<wire x1="-5.842" y1="-2" x2="0" y2="-2" width="0.1524" layer="21"/>
+<wire x1="0" y1="-2" x2="5.873" y2="-2" width="0.1524" layer="21"/>
+<wire x1="5.873" y1="-2" x2="5.873" y2="2" width="0.1524" layer="21"/>
+<wire x1="5.873" y1="2" x2="0" y2="2" width="0.1524" layer="21"/>
+</package>
 <package name="LED_5MM_RGB">
 <description>&lt;a href="https://github.com/adafruit/Adafruit-Eagle-Library"&gt;Source: Adafruit&lt;/a&gt;</description>
 <wire x1="-2.54" y1="1.905" x2="-2.54" y2="-1.905" width="0.127" layer="21"/>
@@ -898,17 +909,6 @@ will be further integrated into the Sparkfun Library for other footprints.  It c
 <text x="0" y="-2.8575" size="0.6096" layer="27" font="vector" ratio="20" align="top-center">&gt;VALUE</text>
 <wire x1="2.5" y1="-1" x2="2.5" y2="1" width="0.127" layer="21"/>
 <wire x1="2.5" y1="-1" x2="2.5" y2="1" width="0.127" layer="21" curve="-316.397181"/>
-</package>
-<package name="SLIDE_SWITCH">
-<pad name="P$1" x="-2.5" y="0" drill="0.95" shape="square"/>
-<pad name="P$2" x="0" y="0" drill="0.95" shape="square"/>
-<pad name="P$3" x="2.5" y="0" drill="0.95" shape="square"/>
-<wire x1="0" y1="2" x2="-5.842" y2="2" width="0.1524" layer="21"/>
-<wire x1="-5.842" y1="2" x2="-5.842" y2="-2" width="0.1524" layer="21"/>
-<wire x1="-5.842" y1="-2" x2="0" y2="-2" width="0.1524" layer="21"/>
-<wire x1="0" y1="-2" x2="5.873" y2="-2" width="0.1524" layer="21"/>
-<wire x1="5.873" y1="-2" x2="5.873" y2="2" width="0.1524" layer="21"/>
-<wire x1="5.873" y1="2" x2="0" y2="2" width="0.1524" layer="21"/>
 </package>
 </packages>
 <symbols>
@@ -1118,6 +1118,27 @@ will be further integrated into the Sparkfun Library for other footprints.  It c
 <wire x1="12.7" y1="-20.32" x2="12.7" y2="7.62" width="0.254" layer="97" style="shortdash"/>
 <wire x1="12.7" y1="7.62" x2="-5.08" y2="7.62" width="0.254" layer="97" style="shortdash"/>
 </symbol>
+<symbol name="SIS">
+<wire x1="-3.81" y1="1.905" x2="-3.81" y2="0" width="0.254" layer="94"/>
+<wire x1="-3.81" y1="0" x2="-1.905" y2="0" width="0.1524" layer="94"/>
+<wire x1="-3.81" y1="0" x2="-3.81" y2="-1.905" width="0.254" layer="94"/>
+<wire x1="-1.27" y1="0" x2="-0.762" y2="0" width="0.1524" layer="94"/>
+<wire x1="0.254" y1="0" x2="0.635" y2="0" width="0.1524" layer="94"/>
+<wire x1="2.54" y1="-3.175" x2="2.54" y2="-1.905" width="0.254" layer="94"/>
+<wire x1="2.54" y1="-1.905" x2="0.635" y2="3.175" width="0.254" layer="94"/>
+<wire x1="3.81" y1="2.54" x2="5.08" y2="2.54" width="0.254" layer="94"/>
+<wire x1="5.08" y1="2.54" x2="5.08" y2="3.175" width="0.254" layer="94"/>
+<wire x1="0" y1="2.54" x2="1.27" y2="2.54" width="0.254" layer="94"/>
+<wire x1="0" y1="2.54" x2="0" y2="3.175" width="0.254" layer="94"/>
+<wire x1="1.27" y1="0" x2="1.905" y2="0" width="0.1524" layer="94"/>
+<wire x1="-0.762" y1="0" x2="-0.254" y2="-0.762" width="0.1524" layer="94"/>
+<wire x1="-0.254" y1="-0.762" x2="0.254" y2="0" width="0.1524" layer="94"/>
+<text x="-6.35" y="-1.905" size="1.778" layer="95" rot="R90">&gt;NAME</text>
+<text x="-3.81" y="3.175" size="1.778" layer="96" rot="R90">&gt;VALUE</text>
+<pin name="P" x="2.54" y="-5.08" visible="off" length="short" direction="pas" rot="R90"/>
+<pin name="S" x="5.08" y="5.08" visible="off" length="short" direction="pas" rot="R270"/>
+<pin name="O" x="0" y="5.08" visible="off" length="short" direction="pas" rot="R270"/>
+</symbol>
 <symbol name="LED_RGB">
 <description>&lt;a href="https://github.com/adafruit/Adafruit-Eagle-Library"&gt;Source: Adafruit&lt;/a&gt;</description>
 <wire x1="-3.81" y1="0" x2="-7.62" y2="0" width="0.254" layer="94"/>
@@ -1150,27 +1171,6 @@ will be further integrated into the Sparkfun Library for other footprints.  It c
 <pin name="GREEN" x="-3.81" y="-15.24" length="middle" rot="R90"/>
 <pin name="GND" x="0" y="-15.24" length="middle" rot="R90"/>
 <pin name="RED" x="3.81" y="-15.24" length="middle" rot="R90"/>
-</symbol>
-<symbol name="SIS">
-<wire x1="-3.81" y1="1.905" x2="-3.81" y2="0" width="0.254" layer="94"/>
-<wire x1="-3.81" y1="0" x2="-1.905" y2="0" width="0.1524" layer="94"/>
-<wire x1="-3.81" y1="0" x2="-3.81" y2="-1.905" width="0.254" layer="94"/>
-<wire x1="-1.27" y1="0" x2="-0.762" y2="0" width="0.1524" layer="94"/>
-<wire x1="0.254" y1="0" x2="0.635" y2="0" width="0.1524" layer="94"/>
-<wire x1="2.54" y1="-3.175" x2="2.54" y2="-1.905" width="0.254" layer="94"/>
-<wire x1="2.54" y1="-1.905" x2="0.635" y2="3.175" width="0.254" layer="94"/>
-<wire x1="3.81" y1="2.54" x2="5.08" y2="2.54" width="0.254" layer="94"/>
-<wire x1="5.08" y1="2.54" x2="5.08" y2="3.175" width="0.254" layer="94"/>
-<wire x1="0" y1="2.54" x2="1.27" y2="2.54" width="0.254" layer="94"/>
-<wire x1="0" y1="2.54" x2="0" y2="3.175" width="0.254" layer="94"/>
-<wire x1="1.27" y1="0" x2="1.905" y2="0" width="0.1524" layer="94"/>
-<wire x1="-0.762" y1="0" x2="-0.254" y2="-0.762" width="0.1524" layer="94"/>
-<wire x1="-0.254" y1="-0.762" x2="0.254" y2="0" width="0.1524" layer="94"/>
-<text x="-6.35" y="-1.905" size="1.778" layer="95" rot="R90">&gt;NAME</text>
-<text x="-3.81" y="3.175" size="1.778" layer="96" rot="R90">&gt;VALUE</text>
-<pin name="P" x="2.54" y="-5.08" visible="off" length="short" direction="pas" rot="R90"/>
-<pin name="S" x="5.08" y="5.08" visible="off" length="short" direction="pas" rot="R270"/>
-<pin name="O" x="0" y="5.08" visible="off" length="short" direction="pas" rot="R270"/>
 </symbol>
 </symbols>
 <devicesets>
@@ -1639,6 +1639,23 @@ Note: The Sparkfun version includes many other packages including surface mount 
 </device>
 </devices>
 </deviceset>
+<deviceset name="SLIDE_SWITCH">
+<gates>
+<gate name="G$1" symbol="SIS" x="-2.54" y="0"/>
+</gates>
+<devices>
+<device name="" package="SLIDE_SWITCH">
+<connects>
+<connect gate="G$1" pin="O" pad="P$1"/>
+<connect gate="G$1" pin="P" pad="P$2"/>
+<connect gate="G$1" pin="S" pad="P$3"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
 <deviceset name="LED_5MM_RGB">
 <description>&lt;a href="https://github.com/adafruit/Adafruit-Eagle-Library"&gt;Source: Adafruit&lt;/a&gt;</description>
 <gates>
@@ -1662,23 +1679,6 @@ Note: The Sparkfun version includes many other packages including surface mount 
 <connect gate="G$1" pin="GND" pad="2"/>
 <connect gate="G$1" pin="GREEN" pad="3"/>
 <connect gate="G$1" pin="RED" pad="1"/>
-</connects>
-<technologies>
-<technology name=""/>
-</technologies>
-</device>
-</devices>
-</deviceset>
-<deviceset name="SLIDE_SWITCH">
-<gates>
-<gate name="G$1" symbol="SIS" x="-2.54" y="0"/>
-</gates>
-<devices>
-<device name="" package="SLIDE_SWITCH">
-<connects>
-<connect gate="G$1" pin="O" pad="P$1"/>
-<connect gate="G$1" pin="P" pad="P$2"/>
-<connect gate="G$1" pin="S" pad="P$3"/>
 </connects>
 <technologies>
 <technology name=""/>
@@ -2295,10 +2295,10 @@ Based on the following sources:
 <part name="U$3" library="HyTechDevices" deviceset="RCA" device=""/>
 <part name="U$1" library="HyTechDevices" deviceset="TEENSY_3.5" device=""/>
 <part name="U$2" library="HyTechDevices" deviceset="VGA-15" device=""/>
-<part name="U$4" library="HyTechDevices" deviceset="LED_5MM_RGB" device="STRAIGHT"/>
 <part name="U$5" library="HyTechDevices" deviceset="SLIDE_SWITCH" device=""/>
 <part name="S3" library="switch-omron" deviceset="40-XX" device="" package3d_urn="urn:adsk.eagle:package:27483/1"/>
 <part name="S4" library="switch-omron" deviceset="40-XX" device="" package3d_urn="urn:adsk.eagle:package:27483/1"/>
+<part name="U$4" library="HyTechDevices" deviceset="LED_5MM_RGB" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -2442,7 +2442,6 @@ Based on the following sources:
 <instance part="U$3" gate="G$1" x="63.5" y="127" smashed="yes"/>
 <instance part="U$1" gate="G$1" x="20.32" y="22.86" smashed="yes"/>
 <instance part="U$2" gate="G$1" x="27.94" y="127" smashed="yes"/>
-<instance part="U$4" gate="G$1" x="96.52" y="60.96" smashed="yes"/>
 <instance part="U$5" gate="G$1" x="50.8" y="109.22" smashed="yes" rot="R270"/>
 <instance part="S3" gate="1" x="60.96" y="30.48" smashed="yes" rot="R270">
 <attribute name="VALUE" x="64.135" y="34.29" size="1.778" layer="96"/>
@@ -2450,6 +2449,7 @@ Based on the following sources:
 <instance part="S4" gate="1" x="60.96" y="15.24" smashed="yes" rot="R270">
 <attribute name="VALUE" x="64.135" y="19.05" size="1.778" layer="96"/>
 </instance>
+<instance part="U$4" gate="G$1" x="96.52" y="60.96" smashed="yes"/>
 </instances>
 <busses>
 </busses>
@@ -2927,9 +2927,6 @@ Based on the following sources:
 <approved hash="204,1,10.16,111.76,CN1,GNDBREAK,,,,"/>
 <approved hash="104,1,127,53.34,IC1P,VCC,+3V3,,,"/>
 <approved hash="113,1,11.0757,112.735,CN1,,,,,"/>
-<approved hash="113,1,60.96,31.4554,S1,,,,,"/>
-<approved hash="113,1,60.96,16.2154,S2,,,,,"/>
-<approved hash="113,1,89.5773,79.0296,JP1,,,,,"/>
 </errors>
 </schematic>
 </drawing>
