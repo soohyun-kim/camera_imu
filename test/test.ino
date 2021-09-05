@@ -38,7 +38,7 @@ Metro switcher = Metro(10);
 
 Bounce recButton = Bounce();
 
-// angles characterizing camera rotation
+// angles characterizing intrinsic camera rotation
 float x_cum, y_cum, z_cum;
 float x_diff, y_diff, z_diff; 
 float cal_x, cal_y, cal_z;
