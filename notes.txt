@@ -1,0 +1,1 @@
+DO NOT USE A STANDARD VIDEO VGA CABLE.  An off-the-shelf VGA cable will short pins 6, 7, and 8 inside the cable, effectively shorting +12V and GND.
