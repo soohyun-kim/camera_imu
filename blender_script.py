@@ -12,8 +12,9 @@ for fileinc in range(len(os.listdir())):
     i = 0
     for frame in dataReader:
         angleList = []
-        for value in frame:
-            angleList.insert(0, float(value))
+        angleList.append(-float(frame[0]))
+        angleList.append(0)
+        angleList.append(float(frame[2]))
         bpy.context.scene.frame_set(i)
         bpy.data.objects['cameraController'+str(fileinc)].rotation_euler = mathutils.Euler(angleList)
         bpy.data.objects['cameraController'+str(fileinc)].keyframe_insert(data_path='rotation_euler')
