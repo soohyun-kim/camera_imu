@@ -1,5 +1,5 @@
-meike 50mm -> 156mm
-meike 25mm -> 80mm
+meike 50mm -> 156mm blender
+meike 25mm -> 80mm blender
 
 
 roughly 3x
