@@ -90,6 +90,7 @@ void setup(void) {
   // setup record trigger PWM
   pinMode(20, OUTPUT);
   analogWriteFrequency(20, 50);
+  analogWrite(20, 51);
 
   // initialize sensor, panic if not found
   if (!gyro.begin()) {
