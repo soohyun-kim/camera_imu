@@ -6,8 +6,13 @@ if len(os.listdir())==0:
 for fileinc in range(len(os.listdir())):
     dataReader = csv.reader(open(str(fileinc)+'.csv'))
 
+    camInitRotation = bpy.data.objects.new('camInitRot'+str(fileinc), None)
+    bpy.context.scene.collection.objects.link(camInitRotation)
+    
     cameraController = bpy.data.objects.new('cameraController'+str(fileinc), None)
     bpy.context.scene.collection.objects.link(cameraController)
+    
+    cameraController.parent = camInitRotation
 
     i = 0
     for frame in dataReader:

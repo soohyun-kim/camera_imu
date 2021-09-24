@@ -12,7 +12,7 @@ The correct procedures in using the camera and the board in conjunction:
 DO NOT:
 
 	- Power the camera with the board's power switch in the OFF position.
-	- Recalibrate the sensor without at least one REC start/stop cycle has been completed.
+	- Recalibrate the sensor without at least one REC start/stop cycle completed.
 
 
 Engineering notes:
