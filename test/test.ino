@@ -231,7 +231,7 @@ void loop(void) {
 
   if (readSensor.check()) {
     // if unfrozen
-    if (digitalRead(34)) {
+    if (digitalRead(34) || recording) {
       updateRotation();
     }
   }
