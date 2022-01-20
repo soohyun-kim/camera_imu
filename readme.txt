@@ -1,3 +1,5 @@
+DEPRECATED: Project is no longer maintained; see evaluation report.  All material is outdated and is preserved only for reference.
+
 The correct procedures in using the camera and the board in conjunction:
 
 1.)  Ensure that the power switch located in the lower half othe board is set to off (right position).  This ensures that the board and camera boot simultaneously as to allow for the PWM signal to be introduced during the camera's grace period.
