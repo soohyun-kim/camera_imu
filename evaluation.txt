@@ -1,0 +1,30 @@
+This project is being deprecated, for reasons of insufficient performance and
+the need for additional components.
+
+First, an evaluation on the components used.  The gyroscope module from
+Adafruit was purchased under the erronous belief that it was sufficiently
+precise for vfx work, as in perfect camera alignment could be achieved
+real-time vs virtual.  This did not prove to be the case; large deviation was
+observed between the real and recorded motion, requiring heavy correction in
+post-production.  After correction, the footage worked well, but the process
+is deemed too cumbersome to use in any practical purpose.
+
+It should be made clear that the rest of the items and processes surrounding
+the gyroscope worked perfectly, primarily, the recording of integrated camera
+position in euler angles to SD card, triggered by simultaneous record start
+between camera and Teensy.
+
+The large error in recording has led to abandoning the idea of recording human motion via
+gyroscope.  Rather, it is now prospective to produce highly precise,
+controlled motion in the first place through
+motorized devices, which will be easier to process.  This, in turn, will
+require additional expense; a motorized slider and head will be necessary.
+
+Additionally, there is a need to add additional components.  The RCA jack was
+added and "broken out" onto the PCB to allow wireless analog video
+transmission, but the need to provide power for such a device was not
+addressed.  The next iteration of camera control will incorporate such needs.
+
+Finally, the board requires more robust control over the camera than what is
+currently provided: only record start/stop.  Additional functions including,
+ISO control, focus control, iris control, etc. will all be necessary. 
